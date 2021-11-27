@@ -68,3 +68,24 @@ async def get_posts(user_id, path, apis, config):
                 await config.update_errors(f'{current_time()} {error.error_description}')
                 break
             await vk_error_handler(error, apis, api, config)
+
+
+async def response_executor(api_request, apis, config):
+    api = None
+    while True:
+        try:
+            fst, snd = api_request
+            api = await apis.get()
+            response = await api.request(fst, snd)
+            await put_with_timeout(apis, api, 0.34)
+            return response
+        except (aiohttp.ClientOSError,
+                aiohttp.ServerDisconnectedError) as error:
+            await put_with_timeout(apis, api, 0.34)
+            await config.update_errors(f'{current_time()} {str(error).rstrip()}')
+        except await sync_to_async(VKAPIError)() as error:
+            if error.code not in (5, 29):
+                await put_with_timeout(apis, api, 0.34)
+                await config.update_errors(f'{current_time()} {error.error_description}')
+                break
+            await vk_error_handler(error, apis, api, config)
