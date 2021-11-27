@@ -14,7 +14,7 @@ from .models import Token, Config
 def index(request):
     """View for creating configs"""
     if request.method == 'POST':
-        fields = ['chain', 'ids', 'photo_type', 'limit_groups', 'limit_members', 'limit_photos', 'hard_limit_posts',
+        fields = ['chain', 'ids', 'photo_type', 'limit_groups', 'limit_members', 'limit_photos', 'limit_posts',
                   'hard_limit_groups', 'hard_limit_members', 'hard_limit_photos', 'hard_limit_posts']
         responses = {field: request.POST[field] for field in fields}
         responses['ids'] = json.dumps(split_ids(responses['ids']))
