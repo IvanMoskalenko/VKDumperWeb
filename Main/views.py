@@ -54,18 +54,17 @@ def active_process(request):
         thread = Process(target=asyncio.run, args=(new_config.start_executing(tokens),), kwargs={})
         thread.start()
         return render(request, 'active_process.html')
-    elif request.method == 'POST' and 'reload_tokens' in request.POST:
+    if request.method == 'POST' and 'reload_tokens' in request.POST:
         config = Config.objects.last()
         config.need_to_reload_tokens()
         return render(request, 'active_process.html')
 
-    elif request.method == 'POST':
+    if request.method == 'POST':
         config = Config.objects.last()
         if config is not None:
             progress = round(config.progress)
             errors = config.errors
             return JsonResponse({"progress": progress, "errors": errors})
-        else:
-            return JsonResponse({"progress": 'Finished'})
+        return JsonResponse({"progress": 'Finished'})
 
     return render(request, 'active_process.html')
