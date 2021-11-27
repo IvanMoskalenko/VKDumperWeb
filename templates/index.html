@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}
+    Main
+{% endblock %}
+{{% block main-link %}
+    nav-link active
+{% endblock %}
+{% block ap-link %}
+    nav-link
+{% endblock %}
+{% block content %}
+    <h4>Adding new links:</h4>
+
+    <form method='POST' name="config_form">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">
+            <div class="btn-group-vertical">
+                <input type="hidden" id="chain" name="chain" autocomplete="off">
+                <input type="button" value="users.get" class="btn btn-secondary"
+                       onclick="button_click('1', 'IDs -> users.get -> ')">
+                <input type="button" value="groups.get -> groups.getMembers" class="btn btn-secondary"
+                       onclick="button_click('2', 'IDs -> groups.get -> groups.getMembers -> ')">
+                <input type="button" value="friends.get" class="btn btn-secondary"
+                       onclick="button_click('3', 'IDs -> friends.get -> ')">
+                <input type="button" value="photos.get w/o download" class="btn btn-secondary"
+                       onclick="button_click('4', 'IDs -> photos.getAlbums -> photos.get (w/o download) -> ')">
+                <input type="button" value="photos.get & download" class="btn btn-secondary"
+                       onclick="button_click('5', 'IDs -> photos.getAlbums -> photos.get (with download) -> ')">
+                <input type="button" value="wall.get" class="btn btn-secondary"
+                       onclick="button_click('6', 'IDs -> wall.get -> ')">
+                <input type="button" value="Clear" class="btn btn-danger"
+                       onclick="button_click('7', '', true)">
+            </div>
+            </div>
+            <div class="col">
+                <label>
+                    <textarea class="form-control" placeholder="Enter IDs" rows="10" id="ids" name="ids"
+                              style="resize: none"></textarea>
+                </label>
+            </div>
+            <div class="col">
+                <h5>
+                    <textarea class="form-control" rows="10" id="chainInterpreted"
+                              name="chainInterpreted" style="resize: none"
+                              autocomplete="off" readonly>Chain: </textarea>
+                </h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h4>Photos type:</h4>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="photo_type" id="S" value="s" checked>
+                    <label class="form-check-label" for="S">S</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="photo_type" id="M" value="m">
+                  <label class="form-check-label" for="M">M</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="photo_type" id="X" value="x">
+                  <label class="form-check-label" for="X">X</label>
+                </div>
+                <h4>Limits:</h4>
+                <div class = "row">
+                    <div class= "col">
+                        <label for="hard_limit_groups">Hard limit groups:</label><br>
+                        <input type="number" id="hard_limit_groups" name="hard_limit_groups" value="1000"><br>
+                        <label for="hard_limit_members">Hard limit members:</label><br>
+                        <input type="number" id="hard_limit_members" name="hard_limit_members" value="50000"><br>
+                        <label for="hard_limit_photos">Hard limit photos:</label><br>
+                        <input type="number" id="hard_limit_photos" name="hard_limit_photos" value="1000"><br>
+                        <label for="hard_limit_posts">Hard limit posts:</label><br>
+                        <input type="number" id="hard_limit_posts" name="hard_limit_posts" value="1000">
+                    </div>
+                    <div class = "col">
+                        <label for="limit_groups">Limit groups:</label><br>
+                        <input type="number" id="limit_groups" name="limit_groups" value="1000"><br>
+                        <label for="limit_members">Limit members:</label><br>
+                        <input type="number" id="limit_members" name="limit_members" value="50000"><br>
+                        <label for="limit_photos">Limit photos:</label><br>
+                        <input type="number" id="limit_photos" name="limit_photos" value="1000"><br>
+                        <label for="limit_posts">Limit posts:</label><br>
+                        <input type="number" id="limit_posts" name="limit_posts" value="1000"><br>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="row">
+                {% for field in fields %}
+                    {% if forloop.counter == 1 or forloop.counter == 18 or forloop.counter == 35 %}
+                        <div class="col">
+                    {% endif %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id={{ field }} name={{ field }}>
+                                <label class="form-check-label" for={{ field }}>{{ field }}</label>
+                            </div>
+                    {% if forloop.counter == 17 or forloop.counter == 34 or forloop.counter == 51 %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+        <br><button class="btn btn-success" type="Submit" onClick="return required()"> Create </button>
+      </form>
+    <script>
+    function button_click(val, text = '', toClear = false)
+    {
+        if (toClear)
+        {
+            document.getElementById("chain").value = '';
+            document.getElementById("chainInterpreted").value = 'Chain: ';
+        }
+        else
+        {
+            document.getElementById("chain").value += val;
+            document.getElementById("chainInterpreted").value+= text;
+        }
+    }
+    function required()
+    {
+        const empt = document.forms["config_form"]["chain"].value;
+        if (empt === "")
+    {
+    alert("Chain can't be empty");
+    return false;
+    }
+    else
+    {
+    return true;
+    }
+    }
+    </script>
+{% endblock %}

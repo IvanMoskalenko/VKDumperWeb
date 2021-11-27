@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}
+    Active Process
+{% endblock %}
+{% block main-link %}
+    nav-link
+{% endblock %}
+{% block ap-link %}
+    nav-link active
+{% endblock %}
+{% block content %}
+    <script>
+    function dynamic_update() {
+        $.ajax({
+            url : "/active_process",
+            type : "POST",
+            data : {
+              progress: "progress",
+              errors: "errors",
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+
+            success : function(response){
+                if (response["progress"] === 'Finished'){
+                    document.getElementById('progress').style.display = 'none';
+                    document.getElementById('process_buttons').style.display = 'none';
+                    document.getElementById('create_new_task_button').removeAttribute('style');
+                    document.getElementById('progress-title').innerHTML = 'Process finished';
+                }
+                else{
+                    const progress_bar = $(".progress-bar");
+                    progress_bar.attr("style", `width: ${response["progress"]}%`);
+                    progress_bar.attr("aria-valuenow", response["progress"]);
+                    $('#progress-bar-span').text(`${response["progress"]}%`);
+                    const errors_textarea = document.getElementById("errors");
+                    errors_textarea.value = response["errors"];
+                    errors_textarea.focus()
+                    errors_textarea.setSelectionRange(errors_textarea.value.length, errors_textarea.value.length);
+                }
+
+            },
+
+            error : function() {
+                alert('Something went wrong');
+            }
+        });
+
+        setTimeout(dynamic_update, 100);
+    }
+    dynamic_update()
+    </script>
+    <h1><span id="progress-title">Processing...</span></h1>
+    <br>
+    <div class="progress" id="progress">
+        <div class="progress-bar" role="progressbar" style=""
+        aria-valuenow="" aria-valuemin="0" aria-valuemax="100">
+        <span id="progress-bar-span"></span>
+        </div>
+    </div>
+    <br>
+    <textarea class="form-control" rows="15" cols="50" id="errors"
+              style="resize: none; width: auto" readonly></textarea>
+    <br>
+    <form method='POST' id="reload">
+        {% csrf_token %}
+    </form>
+    <form method='POST' id="reload_tokens">
+        {% csrf_token %}
+    </form>
+    <div class="btn-group" id="process_buttons">
+        <button class="btn btn-success" type="Submit" name="reload" form="reload">
+            Reload process
+        </button>
+        <button class="btn btn-success" type="Submit" name="reload_tokens" form="reload_tokens">
+            Reload tokens
+        </button>
+    </div>
+    <div id="create_new_task_button" style="display: none">
+        <a class="btn btn-primary" href="{% url 'main' %}" role="button">
+                Create new task
+        </a>
+    </div>
+
+{% endblock %}
