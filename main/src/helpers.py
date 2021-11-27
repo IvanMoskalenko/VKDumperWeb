@@ -6,10 +6,10 @@ import httplib2
 
 
 def get_required_size(sizes, photo_type):
-    """Func gets given size of photo."""
+    """Func gets given size of photo"""
     available_types = ['s', 'm', 'x']
     if photo_type in available_types:
-        required_size = dict()
+        required_size = {}
         for size in sizes:
             if size['type'] == photo_type:
                 required_size = size
@@ -18,7 +18,7 @@ def get_required_size(sizes, photo_type):
 
 
 def save_image(url, path):
-    """Func downloads image."""
+    """Func downloads image"""
     cash = httplib2.Http('.cache')
     _, content = cash.request(url)
     with open(path, 'wb') as out:
@@ -26,6 +26,7 @@ def save_image(url, path):
 
 
 def limited_as_completed(coros, limit):
+    """Executes coroutines with limit"""
     futures = [
         asyncio.ensure_future(c)
         for c in islice(coros, 0, limit)
@@ -34,16 +35,15 @@ def limited_as_completed(coros, limit):
     async def first_to_finish():
         while True:
             await asyncio.sleep(0)
-            for f in futures:
-                if f.done():
-                    futures.remove(f)
+            for future in futures:
+                if future.done():
+                    futures.remove(future)
                     try:
                         newf = next(coros)
                         futures.append(
                             asyncio.ensure_future(newf))
-                    except StopIteration as e:
+                    except StopIteration:
                         pass
-                    return f.result()
+                    return future.result()
     while len(futures) > 0:
         yield first_to_finish()
-
