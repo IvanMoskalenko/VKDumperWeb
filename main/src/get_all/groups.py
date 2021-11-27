@@ -8,7 +8,7 @@ from main.src.get_all.helpers import \
     current_time, put_with_timeout, vk_error_handler
 
 
-async def get_groups(user_id, limit, apis, hard_limit, config):
+async def get_groups(user_id, apis, config):
     """Func gets all groups from one user"""
     api = None
     while True:
@@ -17,6 +17,8 @@ async def get_groups(user_id, limit, apis, hard_limit, config):
             count_response = await api.request("groups.get", {'user_id': user_id, 'count': 1})
             await put_with_timeout(apis, api, 0.34)
             list_of_groups = []
+            hard_limit = config.hard_limit_groups
+            limit = config.limit_groups
             if count_response['response']['count'] > int(hard_limit):
                 return list_of_groups
             groups_range = math.ceil(count_response['response']['count'] / 1000)

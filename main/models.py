@@ -46,23 +46,23 @@ class Config(models.Model):
         remaining_progress = 100 - self.progress
         progress_chunk = remaining_progress / len(self.chain)
         apis = await get_settings(tokens)
-        c = len(self.original_chain) - len(self.chain)
+        counter = len(self.original_chain) - len(self.chain)
         datetime = current_date_and_time()
         for link in self.chain:
             if link == "1":
-                ids = await ids_users_ids(c, apis, progress_chunk, self, datetime)
+                ids = await ids_users_ids(counter, apis, progress_chunk, self, datetime)
             elif link == "2":
                 ids = await ids_groups_members_ids(apis, progress_chunk, self)
             elif link == "3":
                 ids = await ids_friends_ids(apis, progress_chunk, self)
             elif link == "4":
-                ids = await ids_albums_photos_ids(apis, c, progress_chunk, self, datetime)
+                ids = await ids_albums_photos_ids(apis, counter, progress_chunk, self, datetime)
             elif link == "5":
                 ids = await \
-                    ids_albums_photos_download_ids(apis, c, progress_chunk, self, datetime)
+                    ids_albums_photos_download_ids(apis, counter, progress_chunk, self, datetime)
             else:
-                ids = await ids_posts_ids(apis, c, progress_chunk, self, datetime)
-            c += 1
+                ids = await ids_posts_ids(apis, counter, progress_chunk, self, datetime)
+            counter += 1
             await sync_to_async(self.refresh_from_db)()
             self.remaining_chain = self.remaining_chain[1:]
             self.ids = json.dumps(ids)

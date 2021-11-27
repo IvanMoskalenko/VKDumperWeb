@@ -11,7 +11,7 @@ from main.src.get_all.helpers \
     import current_time, put_with_timeout, photos_downloader, saver, save_on_server, vk_error_handler
 
 
-async def get_user_photos_requests(apis, user_id, hard_limit, limit, config):
+async def get_user_photos_requests(apis, user_id, config):
     """Func returns requests for getting all photos that the user is marked on"""
     api = None
     api_requests = queue.Queue()
@@ -21,6 +21,8 @@ async def get_user_photos_requests(apis, user_id, hard_limit, limit, config):
             count_response = await api.request("photos.getUserPhotos",
                                                {'user_id': user_id, 'count': 0})
             await put_with_timeout(apis, api, 0.34)
+            hard_limit = config.hard_limit_photos
+            limit = config.limit_photos
             if count_response['response']['count'] <= int(hard_limit):
                 photos_range = math.ceil(count_response['response']['count'] / 1000)
                 limit_range = math.ceil(int(limit) / 1000)
@@ -41,7 +43,7 @@ async def get_user_photos_requests(apis, user_id, hard_limit, limit, config):
             await vk_error_handler(error, apis, api, config)
 
 
-async def get_album_photos_requests(apis, user_id, album_id, hard_limit, limit, config):
+async def get_album_photos_requests(apis, user_id, album_id, config):
     """Func returns requests for getting all photos from one album"""
     api = None
     api_requests = queue.Queue()
@@ -52,6 +54,8 @@ async def get_album_photos_requests(apis, user_id, album_id, hard_limit, limit, 
                                                {'owner_id': user_id, 'album_id': album_id,
                                                 'count': 0})
             await put_with_timeout(apis, api, 0.34)
+            hard_limit = config.hard_limit_photos
+            limit = config.limit_photos
             if count_response['response']['count'] <= int(hard_limit):
                 photos_range = math.ceil(count_response['response']['count'] / 1000)
                 limit_range = math.ceil(int(limit) / 1000)
@@ -73,14 +77,14 @@ async def get_album_photos_requests(apis, user_id, album_id, hard_limit, limit, 
             await vk_error_handler(error, apis, api, config)
 
 
-async def get_all_photos_from_one_album(user_id, album_id, limit, path, is_download, apis, hard_limit, config, photo_type='S'):
+async def get_all_photos_from_one_album(user_id, album_id, path, is_download, apis, config):
     """Func gets all photos from one album"""
     api = None
     photos_list = []
     if album_id == -9000:
-        api_requests = await get_user_photos_requests(apis, user_id, hard_limit, limit, config)
+        api_requests = await get_user_photos_requests(apis, user_id, config)
     else:
-        api_requests = await get_album_photos_requests(apis, user_id, album_id, hard_limit, limit, config)
+        api_requests = await get_album_photos_requests(apis, user_id, album_id, config)
     while True:
         try:
             if album_id == -9000:
@@ -95,7 +99,7 @@ async def get_all_photos_from_one_album(user_id, album_id, limit, path, is_downl
                         item['owner_id'] = user_id
                         item.pop('access_key', None)
                         item.pop('user_id', None)
-                    photos_downloader(is_download, response, path, user_id, photo_type)
+                    photos_downloader(is_download, response, path, user_id, config.photo_type)
                     photos_list.extend(response['response']['items'])
             else:
                 while not api_requests.empty():
@@ -104,7 +108,7 @@ async def get_all_photos_from_one_album(user_id, album_id, limit, path, is_downl
                     response = await api.request(fst, snd)
                     api_requests.get()
                     await put_with_timeout(apis, api, 0.34)
-                    photos_downloader(is_download, response, path, user_id, photo_type)
+                    photos_downloader(is_download, response, path, user_id, config.photo_type)
                     photos_list.extend(response['response']['items'])
             return photos_list
         except (aiohttp.ClientOSError,
@@ -119,14 +123,14 @@ async def get_all_photos_from_one_album(user_id, album_id, limit, path, is_downl
             await vk_error_handler(error, apis, api, config)
 
 
-async def get_photos(user_id, albums_ids, limit, path, is_download, apis, hard_limit, config, photo_type='S'):
+async def get_photos(user_id, albums_ids, path, is_download, apis, config):
     """Func gets all user's photos"""
     path_file = os.path.join(path, f"id{user_id}.csv")
     photos_list = []
 
     for album in albums_ids:
         album_photos_list = \
-            await get_all_photos_from_one_album(user_id, album, limit, path, is_download, apis, hard_limit, config, photo_type)
+            await get_all_photos_from_one_album(user_id, album, path, is_download, apis, config)
         photos_list.extend(album_photos_list)
     saver(photos_list, path_file)
     save_on_server(path_file)

@@ -10,7 +10,7 @@ from main.src.get_all.helpers import \
     current_time, put_with_timeout, vk_error_handler
 
 
-async def get_members_requests(group_id, limit, apis, hard_limit, config):
+async def get_members_requests(group_id, apis, config):
     """Func returns requests for getting members"""
     api = None
     api_requests = queue.Queue()
@@ -20,6 +20,8 @@ async def get_members_requests(group_id, limit, apis, hard_limit, config):
             count_response = await api.request("groups.getMembers",
                                                {'group_id': group_id, 'count': 0})
             await put_with_timeout(apis, api, 0.34)
+            hard_limit = config.hard_limit_members
+            limit = config.limit_members
             if count_response['response']['count'] > int(hard_limit):
                 return api_requests
             members_range = math.ceil(count_response['response']['count'] / 1000)
@@ -40,10 +42,10 @@ async def get_members_requests(group_id, limit, apis, hard_limit, config):
             await vk_error_handler(error, apis, api, config)
 
 
-async def get_members(group_id, limit, apis, hard_limit, config):
+async def get_members(group_id, apis, config):
     """Func gets all members"""
     api = None
-    api_requests = await get_members_requests(group_id, limit, apis, hard_limit, config)
+    api_requests = await get_members_requests(group_id, apis, config)
     list_of_members = []
     while True:
         try:
