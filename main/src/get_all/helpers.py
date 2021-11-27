@@ -1,3 +1,4 @@
+"""Helpers functions"""
 import asyncio
 import csv
 import os
@@ -9,12 +10,12 @@ from main.src.helpers import get_required_size, save_image
 
 
 def current_time():
-    """Func gets current time."""
+    """Func gets current time"""
     return datetime.now().strftime('%H:%M:%S')
 
 
 def users_list_handler(users_ids, chunk_size):
-    """Func divides list and creates strings. Necessary for get_all.users."""
+    """Func divides list and creates strings. Necessary for get_all.users"""
 
     def div_list(my_list, size):
         return [my_list[x: x + size] for x in range(0, len(my_list), size)]
@@ -27,6 +28,7 @@ def users_list_handler(users_ids, chunk_size):
 
 
 def photos_downloader(is_download, response, path, user_id, photo_type):
+    """Func downloads photos if necessary"""
     if is_download:
         for photo in response['response']['items']:
             path_with_new_dirs = os.path.join(
@@ -42,12 +44,13 @@ def photos_downloader(is_download, response, path, user_id, photo_type):
 
 
 async def put_with_timeout(apis, api, timeout):
+    """Func returns API to queue after time specified"""
     await asyncio.sleep(timeout)
     await apis.put(api)
 
 
 def saver(items_list, path):
-    """Func creates dataframe from list and saves it."""
+    """Func saves items list to .csv file"""
     fieldnames = set()
     for item in items_list:
         fieldnames.update(item.keys())
@@ -59,8 +62,9 @@ def saver(items_list, path):
 
 
 def save_on_server(path_to_file):
+    """Func saves file to Yandex.Cloud"""
     session = boto3.session.Session()
-    s3 = session.client(
+    client = session.client(
         aws_access_key_id='bjy3Jfov0IGVq3RH5yjx',
         aws_secret_access_key='cgUWI4oXkY_RqhMEgISc77hU9XJqVcyqYOJWE6uu',
         region_name='ru-central1',
@@ -68,11 +72,12 @@ def save_on_server(path_to_file):
         endpoint_url='https://storage.yandexcloud.net'
     )
 
-    s3.upload_file(path_to_file, 'datasetsvkparser', path_to_file)
-    s3.upload_file(path_to_file, 'datasetsvkparser', path_to_file)
+    client.upload_file(path_to_file, 'datasetsvkparser', path_to_file)
+    client.upload_file(path_to_file, 'datasetsvkparser', path_to_file)
 
 
 async def vk_error_handler(error, apis, api, config):
+    """Func handles VK API errors 5 and 29"""
     if error.code == 5:
         await config.update_errors(f'{current_time()} {error.error_description}')
     else:

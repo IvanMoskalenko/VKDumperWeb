@@ -1,3 +1,4 @@
+"""Module for getting all user's photos"""
 import math
 import os
 import queue
@@ -11,6 +12,7 @@ from main.src.get_all.helpers \
 
 
 async def get_user_photos_requests(apis, user_id, hard_limit, limit, config):
+    """Func returns requests for getting all photos that the user is marked on"""
     api = None
     api_requests = queue.Queue()
     while True:
@@ -32,15 +34,15 @@ async def get_user_photos_requests(apis, user_id, hard_limit, limit, config):
             await put_with_timeout(apis, api, 0.34)
             await config.update_errors(f'{current_time()} {str(error).rstrip()}')
         except await sync_to_async(VKAPIError)() as error:
-            if error.code != 5 and error.code != 29:
+            if error.code not in (5, 29):
                 await put_with_timeout(apis, api, 0.34)
                 await config.update_errors(f'{current_time()} {error.error_description}')
                 return api_requests
-            else:
-                await vk_error_handler(error, apis, api, config)
+            await vk_error_handler(error, apis, api, config)
 
 
 async def get_album_photos_requests(apis, user_id, album_id, hard_limit, limit, config):
+    """Func returns requests for getting all photos from one album"""
     api = None
     api_requests = queue.Queue()
     while True:
@@ -64,15 +66,15 @@ async def get_album_photos_requests(apis, user_id, album_id, hard_limit, limit, 
             await put_with_timeout(apis, api, 0.34)
             await config.update_errors(f'{current_time()} {str(error).rstrip()}')
         except await sync_to_async(VKAPIError)() as error:
-            if error.code != 5 and error.code != 29:
+            if error.code not in (5, 29):
                 await put_with_timeout(apis, api, 0.34)
                 await config.update_errors(f'{current_time()} {error.error_description}')
                 return api_requests
-            else:
-                await vk_error_handler(error, apis, api, config)
+            await vk_error_handler(error, apis, api, config)
 
 
 async def get_all_photos_from_one_album(user_id, album_id, limit, path, is_download, apis, hard_limit, config, photo_type='S'):
+    """Func gets all photos from one album"""
     api = None
     photos_list = []
     if album_id == -9000:
@@ -110,15 +112,15 @@ async def get_all_photos_from_one_album(user_id, album_id, limit, path, is_downl
             await put_with_timeout(apis, api, 0.34)
             await config.update_errors(f'{current_time()} {str(error).rstrip()}')
         except await sync_to_async(VKAPIError)() as error:
-            if error.code != 5 and error.code != 29:
+            if error.code not in (5, 29):
                 await put_with_timeout(apis, api, 0.34)
                 await config.update_errors(f'{current_time()} {error.error_description}')
                 return []
-            else:
-                await vk_error_handler(error, apis, api, config)
+            await vk_error_handler(error, apis, api, config)
 
 
 async def get_photos(user_id, albums_ids, limit, path, is_download, apis, hard_limit, config, photo_type='S'):
+    """Func gets all user's photos"""
     path_file = os.path.join(path, f"id{user_id}.csv")
     photos_list = []
 

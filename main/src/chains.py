@@ -1,6 +1,8 @@
+"""Functional representation of available chain links"""
+import json
 import os
-import numpy
 from asyncio import Queue
+import numpy
 from asgiref.sync import sync_to_async
 from main.src.get_all.helpers import saver, save_on_server
 from main.src.helpers import limited_as_completed
@@ -14,6 +16,7 @@ from main.src.get_all.users import get_users
 
 
 async def coros_executor(one_iteration, users_ids, apis, config, progress_chunk):
+    """Gets and runs coroutines"""
     if config.is_need_to_reload_tokens:
         await config.reload_tokens(apis)
     coros = (one_iteration(user_id) for user_id in users_ids)
@@ -26,13 +29,15 @@ async def coros_executor(one_iteration, users_ids, apis, config, progress_chunk)
         await sync_to_async(config.save)()
 
 
-async def ids_users_ids(users_ids, iteration, apis: Queue, progress_chunk, config, datetime):
+async def ids_users_ids(iteration, apis: Queue, progress_chunk, config, datetime):
     """IDs -> users.get -> IDs"""
     fields = config.fields
     if not os.path.isdir(datetime):
         os.makedirs(datetime)
     path = os.path.join(datetime, f"users_info_{iteration}.csv")
     list_of_users = []
+    json_dec = json.decoder.JSONDecoder()
+    users_ids = json_dec.decode(config.ids)
     divided_list = numpy.array_split(users_ids, apis.qsize())
     if fields.find('counters') != -1 or fields.find('military') != -1:
         coros = (get_users(ids, True, apis, config, fields) for ids in divided_list)
@@ -55,7 +60,7 @@ async def ids_users_ids(users_ids, iteration, apis: Queue, progress_chunk, confi
     return users_ids
 
 
-async def ids_groups_members_ids(users_ids, apis: Queue, progress_chunk, config):
+async def ids_groups_members_ids(apis: Queue, progress_chunk, config):
     """IDs -> groups.get -> groups.getMembers -> IDs"""
     limit_groups = config.limit_groups
     limit_members = config.limit_members
@@ -76,11 +81,13 @@ async def ids_groups_members_ids(users_ids, apis: Queue, progress_chunk, config)
                 await one_iteration(group)
         ids_of_all_members.extend(ids_of_members)
 
+    json_dec = json.decoder.JSONDecoder()
+    users_ids = json_dec.decode(config.ids)
     await coros_executor(one_user_all_groups, users_ids, apis, config, progress_chunk)
     return ids_of_all_members
 
 
-async def ids_friends_ids(users_ids, apis: Queue, progress_chunk, config):
+async def ids_friends_ids(apis: Queue, progress_chunk, config):
     """IDs -> friends.get -> IDs"""
     ids_of_all_friends = []
 
@@ -88,11 +95,13 @@ async def ids_friends_ids(users_ids, apis: Queue, progress_chunk, config):
         friends_of_one_user = await get_friends(usr_id, apis, config)
         ids_of_all_friends.extend(friends_of_one_user)
 
+    json_dec = json.decoder.JSONDecoder()
+    users_ids = json_dec.decode(config.ids)
     await coros_executor(one_iteration, users_ids, apis, config, progress_chunk)
     return ids_of_all_friends
 
 
-async def ids_albums_photos_ids(users_ids, apis: Queue, iteration, progress_chunk, config, datetime):
+async def ids_albums_photos_ids(apis: Queue, iteration, progress_chunk, config, datetime):
     """IDs -> photos.getAlbums -> photos.get -> IDs"""
     path = os.path.join(datetime, f"photos_{iteration}")
     limit_photos = config.limit_photos
@@ -104,11 +113,13 @@ async def ids_albums_photos_ids(users_ids, apis: Queue, iteration, progress_chun
         albums = await get_albums(usr_id, apis, config)
         await get_photos(usr_id, albums, limit_photos, path, False, apis, hard_limit, config)
 
+    json_dec = json.decoder.JSONDecoder()
+    users_ids = json_dec.decode(config.ids)
     await coros_executor(one_iteration, users_ids, apis, config, progress_chunk)
     return users_ids
 
 
-async def ids_albums_photos_download_ids(users_ids, apis: Queue, iteration, progress_chunk, config, datetime):
+async def ids_albums_photos_download_ids(apis: Queue, iteration, progress_chunk, config, datetime):
     """IDs -> photos.getAlbums -> photos.get -> Download photos -> IDs"""
     limit_photos = config.limit_photos
     photo_type = config.photo_type
@@ -121,11 +132,13 @@ async def ids_albums_photos_download_ids(users_ids, apis: Queue, iteration, prog
         albums = await get_albums(usr_id, apis, config)
         await get_photos(usr_id, albums, limit_photos, path, True, apis, hard_limit, config, photo_type)
 
+    json_dec = json.decoder.JSONDecoder()
+    users_ids = json_dec.decode(config.ids)
     await coros_executor(one_iteration, users_ids, apis, config, progress_chunk)
     return users_ids
 
 
-async def ids_posts_ids(users_ids, apis: Queue, iteration, progress_chunk, config, datetime):
+async def ids_posts_ids(apis: Queue, iteration, progress_chunk, config, datetime):
     """IDs -> wall.get -> IDs"""
     limit_posts = config.limit_posts
     hard_limit_posts = config.hard_limit_posts
@@ -137,5 +150,7 @@ async def ids_posts_ids(users_ids, apis: Queue, iteration, progress_chunk, confi
         ready_path = os.path.join(path_with_new_dir, f"{usr_id}.csv")
         await get_posts(usr_id, limit_posts, ready_path, apis, hard_limit_posts, config)
 
+    json_dec = json.decoder.JSONDecoder()
+    users_ids = json_dec.decode(config.ids)
     await coros_executor(one_iteration, users_ids, apis, config, progress_chunk)
     return users_ids

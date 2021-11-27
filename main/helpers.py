@@ -5,6 +5,7 @@ from vkbottle import API
 
 
 def all_users_fields():
+    """Func returns all available users.get fields"""
     users_fields = ["counters", "is_no_index", "photo_id", "verified", "sex", "bdate", "city", "country",
                     "home_town", "has_photo", "photo_50", "photo_100", "photo_200_orig", "photo_200",
                     "photo_400_orig", "photo_max", "photo_max_orig", "online", "domain", "has_mobile",
@@ -17,6 +18,7 @@ def all_users_fields():
 
 
 def get_users_fields(request):
+    """Func gets request and returns fields separated by comma"""
     fields = ''
     for users_field in all_users_fields():
         if users_field in request.POST:
@@ -25,12 +27,13 @@ def get_users_fields(request):
 
 
 def current_date_and_time():
+    """Func returns current date and time in dd-mm-yyyy hh:mm:ss format"""
     now = datetime.now()
     return now.strftime("%d-%m-%Y %H:%M:%S")
 
 
 async def get_settings(tokens):
-    """Func for getting settings."""
+    """Func for getting APIs queue by tokens"""
     api_list = [get_api(token) for token in tokens]
     apis = Queue()
     for api in api_list:
@@ -44,12 +47,14 @@ def get_api(token):
     return api
 
 
-def read_data(text):
+def split_ids(text):
+    """Func returns list[str] of IDs"""
     data = str(text).splitlines()
     return data
 
 
 def chain_interpreter(chain):
+    """Func converts the encoded chain into its textual representation"""
     interpreted_chain = ''
     for link in chain:
         if link == "1":
@@ -65,4 +70,3 @@ def chain_interpreter(chain):
         if link == "6":
             interpreted_chain += 'IDs -> wall.get -> '
     return interpreted_chain
-

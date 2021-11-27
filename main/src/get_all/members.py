@@ -1,3 +1,4 @@
+"""Module for getting all members from one group"""
 import math
 import queue
 
@@ -10,6 +11,7 @@ from main.src.get_all.helpers import \
 
 
 async def get_members_requests(group_id, limit, apis, hard_limit, config):
+    """Func returns requests for getting members"""
     api = None
     api_requests = queue.Queue()
     while True:
@@ -31,16 +33,15 @@ async def get_members_requests(group_id, limit, apis, hard_limit, config):
             await put_with_timeout(apis, api, 0.34)
             await config.update_errors(f'{current_time()} {str(error).rstrip()}')
         except await sync_to_async(VKAPIError)() as error:
-            if error.code != 5 and error.code != 29:
+            if error.code not in (5, 29):
                 await put_with_timeout(apis, api, 0.34)
                 await config.update_errors(f'{current_time()} {error.error_description}')
                 return api_requests
-            else:
-                await vk_error_handler(error, apis, api, config)
+            await vk_error_handler(error, apis, api, config)
 
 
 async def get_members(group_id, limit, apis, hard_limit, config):
-    """Func gets all members."""
+    """Func gets all members"""
     api = None
     api_requests = await get_members_requests(group_id, limit, apis, hard_limit, config)
     list_of_members = []
@@ -59,9 +60,8 @@ async def get_members(group_id, limit, apis, hard_limit, config):
             await put_with_timeout(apis, api, 0.34)
             await config.update_errors(f'{current_time()} {str(error).rstrip()}')
         except await sync_to_async(VKAPIError)() as error:
-            if error.code != 5 and error.code != 29:
+            if error.code not in (5, 29):
                 await put_with_timeout(apis, api, 0.34)
                 await config.update_errors(f'{current_time()} {error.error_description}')
                 return []
-            else:
-                await vk_error_handler(error, apis, api, config)
+            await vk_error_handler(error, apis, api, config)

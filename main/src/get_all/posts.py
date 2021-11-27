@@ -1,3 +1,4 @@
+"""Module for getting all users' posts"""
 import math
 import os
 import queue
@@ -11,6 +12,7 @@ from main.src.get_all.helpers import \
 
 
 async def get_posts_request(apis, user_id, hard_limit, limit, config):
+    """Func returns requests for getting all posts"""
     api = None
     api_requests = queue.Queue()
     while True:
@@ -29,15 +31,15 @@ async def get_posts_request(apis, user_id, hard_limit, limit, config):
             await put_with_timeout(apis, api, 0.34)
             await config.update_errors(f'{current_time()} {str(error).rstrip()}')
         except await sync_to_async(VKAPIError)() as error:
-            if error.code != 5 and error.code != 29:
+            if error.code not in (5, 29):
                 await put_with_timeout(apis, api, 0.34)
                 await config.update_errors(f'{current_time()} {error.error_description}')
                 return api_requests
-            else:
-                await vk_error_handler(error, apis, api, config)
+            await vk_error_handler(error, apis, api, config)
 
 
 async def get_posts(user_id, limit, path, apis, hard_limit, config):
+    """Func gets all user's post"""
     api = None
     posts_list = []
     api_requests = await get_posts_request(apis, user_id, hard_limit, limit, config)
@@ -59,9 +61,8 @@ async def get_posts(user_id, limit, path, apis, hard_limit, config):
             await put_with_timeout(apis, api, 0.34)
             await config.update_errors(f'{current_time()} {str(error).rstrip()}')
         except await sync_to_async(VKAPIError)() as error:
-            if error.code != 5 and error.code != 29:
+            if error.code not in (5, 29):
                 await put_with_timeout(apis, api, 0.34)
                 await config.update_errors(f'{current_time()} {error.error_description}')
                 break
-            else:
-                await vk_error_handler(error, apis, api, config)
+            await vk_error_handler(error, apis, api, config)

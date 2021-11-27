@@ -6,7 +6,7 @@ from multiprocessing import Process
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from .helpers import get_users_fields, all_users_fields, read_data, chain_interpreter
+from .helpers import get_users_fields, all_users_fields, split_ids, chain_interpreter
 from .models import Token, Config
 
 
@@ -17,7 +17,7 @@ def index(request):
         fields = ['chain', 'ids', 'photo_type', 'limit_groups', 'limit_members', 'limit_photos', 'hard_limit_posts',
                   'hard_limit_groups', 'hard_limit_members', 'hard_limit_photos', 'hard_limit_posts']
         responses = {field: request.POST[field] for field in fields}
-        responses['ids'] = json.dumps(read_data(responses['ids']))
+        responses['ids'] = json.dumps(split_ids(responses['ids']))
         responses['fields'] = get_users_fields(request)
         responses['interpreted_chain'] = chain_interpreter(responses['chain'])
         responses['remaining_chain'] = responses['chain']

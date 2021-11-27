@@ -1,3 +1,4 @@
+"""Module with existing models in app"""
 import json
 
 from asgiref.sync import sync_to_async
@@ -9,6 +10,7 @@ from main.src.chains import ids_users_ids, ids_groups_members_ids, ids_friends_i
 
 
 class Token(models.Model):
+    """Representation of VK API access-token"""
     token = models.CharField('Token', max_length=85)
 
     def __str__(self):
@@ -16,6 +18,7 @@ class Token(models.Model):
 
 
 class Config(models.Model):
+    """Implementation of config providing information for running task"""
     chain = models.CharField(max_length=100)
     ids = models.TextField(default='')
     photo_type = models.CharField(max_length=1, default='S')
@@ -37,10 +40,9 @@ class Config(models.Model):
     errors = models.TextField(default='')
 
     async def start_executing(self, tokens):
+        """Starts executing of task with config information"""
         self.current_tokens = json.dumps(tokens)
         await sync_to_async(self.save)()
-        json_dec = json.decoder.JSONDecoder()
-        ids = json_dec.decode(self.ids)
         remaining_progress = 100 - self.progress
         progress_chunk = remaining_progress / len(self.chain)
         apis = await get_settings(tokens)
@@ -48,18 +50,18 @@ class Config(models.Model):
         datetime = current_date_and_time()
         for link in self.chain:
             if link == "1":
-                ids = await ids_users_ids(ids, c, apis, progress_chunk, self, datetime)
-            if link == "2":
-                ids = await ids_groups_members_ids(ids, apis, progress_chunk, self)
-            if link == "3":
-                ids = await ids_friends_ids(ids, apis, progress_chunk, self)
-            if link == "4":
-                ids = await ids_albums_photos_ids(ids, apis, c, progress_chunk, self, datetime)
-            if link == "5":
+                ids = await ids_users_ids(c, apis, progress_chunk, self, datetime)
+            elif link == "2":
+                ids = await ids_groups_members_ids(apis, progress_chunk, self)
+            elif link == "3":
+                ids = await ids_friends_ids(apis, progress_chunk, self)
+            elif link == "4":
+                ids = await ids_albums_photos_ids(apis, c, progress_chunk, self, datetime)
+            elif link == "5":
                 ids = await \
-                    ids_albums_photos_download_ids(ids, apis, c, progress_chunk, self, datetime)
-            if link == "6":
-                ids = await ids_posts_ids(ids, apis, c, progress_chunk, self, datetime)
+                    ids_albums_photos_download_ids(apis, c, progress_chunk, self, datetime)
+            else:
+                ids = await ids_posts_ids(apis, c, progress_chunk, self, datetime)
             c += 1
             await sync_to_async(self.refresh_from_db)()
             self.remaining_chain = self.remaining_chain[1:]
@@ -68,6 +70,7 @@ class Config(models.Model):
         await sync_to_async(self.delete)()
 
     async def reload_tokens(self, apis):
+        """Reload available tokens"""
         json_dec = json.decoder.JSONDecoder()
         tokens = [await sync_to_async(token.get)('token')
                   for token in await sync_to_async(list)(Token.objects.values())]
@@ -81,10 +84,11 @@ class Config(models.Model):
             await apis.put(api)
 
     def need_to_reload_tokens(self):
+        """Notifies about the need of reloading tokens"""
         self.is_need_to_reload_tokens = True
         self.save()
 
     async def update_errors(self, error):
+        """Updates the text field about errors that have occurred"""
         self.errors += error + '\n'
         await sync_to_async(self.save)()
-
