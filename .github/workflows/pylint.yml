@@ -21,4 +21,4 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint $(find . -path "./Main/*" -name "*.py" | xargs)
+        pylint $(find . -path "./Main/*" -name "*.py" | xargs) --max-line-length=120
