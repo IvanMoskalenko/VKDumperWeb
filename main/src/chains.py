@@ -1,6 +1,7 @@
 """Functional representation of available chain links"""
 import json
 import os
+import shutil
 from asyncio import Queue
 import numpy
 from asgiref.sync import sync_to_async
@@ -57,6 +58,7 @@ async def ids_users_ids(iteration, apis: Queue, progress_chunk, config, datetime
     saver(list_of_users, path)
     save_on_server(path)
     os.remove(path)
+    os.rmdir(datetime)
     return users_ids
 
 
@@ -110,6 +112,7 @@ async def ids_albums_photos_ids(apis: Queue, iteration, progress_chunk, config, 
     json_dec = json.decoder.JSONDecoder()
     users_ids = json_dec.decode(config.ids)
     await coros_executor(one_iteration, users_ids, apis, config, progress_chunk)
+    shutil.rmtree(datetime)
     return users_ids
 
 
@@ -126,4 +129,5 @@ async def ids_posts_ids(apis: Queue, iteration, progress_chunk, config, datetime
     json_dec = json.decoder.JSONDecoder()
     users_ids = json_dec.decode(config.ids)
     await coros_executor(one_iteration, users_ids, apis, config, progress_chunk)
+    shutil.rmtree(datetime)
     return users_ids
