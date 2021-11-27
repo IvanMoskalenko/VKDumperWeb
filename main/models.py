@@ -5,8 +5,7 @@ from asgiref.sync import sync_to_async
 from django.db import models
 
 from main.helpers import get_settings, current_date_and_time, get_api
-from main.src.chains import ids_users_ids, ids_groups_members_ids, ids_friends_ids, ids_albums_photos_ids, \
-    ids_albums_photos_download_ids, ids_posts_ids
+from main.src.chains import ids_users_ids, ids_groups_members_ids, ids_friends_ids, ids_albums_photos_ids, ids_posts_ids
 
 
 class Token(models.Model):
@@ -55,11 +54,8 @@ class Config(models.Model):
                 ids = await ids_groups_members_ids(apis, progress_chunk, self)
             elif link == "3":
                 ids = await ids_friends_ids(apis, progress_chunk, self)
-            elif link == "4":
+            elif link == "4" or link == "5":
                 ids = await ids_albums_photos_ids(apis, counter, progress_chunk, self, datetime)
-            elif link == "5":
-                ids = await \
-                    ids_albums_photos_download_ids(apis, counter, progress_chunk, self, datetime)
             else:
                 ids = await ids_posts_ids(apis, counter, progress_chunk, self, datetime)
             counter += 1

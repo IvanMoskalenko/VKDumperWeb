@@ -98,30 +98,14 @@ async def ids_friends_ids(apis: Queue, progress_chunk, config):
 
 
 async def ids_albums_photos_ids(apis: Queue, iteration, progress_chunk, config, datetime):
-    """IDs -> photos.getAlbums -> photos.get -> IDs"""
+    """IDs -> photos.getAlbums -> photos.get -> Download photos (opt) -> IDs"""
     path = os.path.join(datetime, f"photos_{iteration}")
     if not os.path.isdir(path):
         os.makedirs(path)
 
     async def one_iteration(usr_id):
         albums = await get_albums(usr_id, apis, config)
-        await get_photos(usr_id, albums, path, False, apis, config)
-
-    json_dec = json.decoder.JSONDecoder()
-    users_ids = json_dec.decode(config.ids)
-    await coros_executor(one_iteration, users_ids, apis, config, progress_chunk)
-    return users_ids
-
-
-async def ids_albums_photos_download_ids(apis: Queue, iteration, progress_chunk, config, datetime):
-    """IDs -> photos.getAlbums -> photos.get -> Download photos -> IDs"""
-    path = os.path.join(datetime, f"photos_{iteration}")
-    if not os.path.isdir(path):
-        os.makedirs(path)
-
-    async def one_iteration(usr_id):
-        albums = await get_albums(usr_id, apis, config)
-        await get_photos(usr_id, albums, path, True, apis, config)
+        await get_photos(usr_id, albums, path, apis, config)
 
     json_dec = json.decoder.JSONDecoder()
     users_ids = json_dec.decode(config.ids)

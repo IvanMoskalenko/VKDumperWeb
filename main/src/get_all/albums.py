@@ -14,4 +14,3 @@ async def get_albums(user_id, apis, config):
     await put_with_timeout(apis, api, 0.34)
     ids = [album['id'] for album in response['response']['items']]
     return ids
-
