@@ -68,14 +68,10 @@ def save_on_server(path_to_file):
     """Func saves file to Yandex.Cloud"""
     session = boto3.session.Session()
     client = session.client(
-        aws_access_key_id='bjy3Jfov0IGVq3RH5yjx',
-        aws_secret_access_key='cgUWI4oXkY_RqhMEgISc77hU9XJqVcyqYOJWE6uu',
-        region_name='ru-central1',
         service_name='s3',
         endpoint_url='https://storage.yandexcloud.net'
     )
 
-    client.upload_file(path_to_file, 'datasetsvkparser', path_to_file)
     client.upload_file(path_to_file, 'datasetsvkparser', path_to_file)
 
 
