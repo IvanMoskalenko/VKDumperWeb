@@ -3,8 +3,8 @@ import json
 from asgiref.sync import sync_to_async
 from django.db import models
 
-from Main.helpers import get_settings, current_date_and_time, get_api
-from Main.src.chains import ids_users_ids, ids_groups_members_ids, ids_friends_ids, ids_albums_photos_ids, \
+from main.helpers import get_settings, current_date_and_time, get_api
+from main.src.chains import ids_users_ids, ids_groups_members_ids, ids_friends_ids, ids_albums_photos_ids, \
     ids_albums_photos_download_ids, ids_posts_ids
 
 

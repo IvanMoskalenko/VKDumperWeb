@@ -4,7 +4,7 @@ import aiohttp
 from asgiref.sync import sync_to_async
 from vkbottle import VKAPIError
 
-from Main.src.get_all.helpers import \
+from main.src.get_all.helpers import \
     users_list_handler, current_time, put_with_timeout, vk_error_handler
 
 

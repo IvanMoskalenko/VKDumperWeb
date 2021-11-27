@@ -5,7 +5,7 @@ from datetime import datetime
 
 import boto3
 
-from Main.src.helpers import get_required_size, save_image
+from main.src.helpers import get_required_size, save_image
 
 
 def current_time():
