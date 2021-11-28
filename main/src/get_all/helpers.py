@@ -30,20 +30,19 @@ def users_list_handler(users_ids, chunk_size):
     return res_list
 
 
-def photos_downloader(is_download, response, path, user_id, photo_type):
-    """Func downloads photos if necessary"""
-    if is_download:
-        for photo in response['response']['items']:
-            path_with_new_dirs = os.path.join(
-                path, str(user_id), str(photo['album_id']))
-            if not os.path.isdir(path_with_new_dirs):
-                os.makedirs(path_with_new_dirs)
-            ready_path = os.path.join(path_with_new_dirs, f"date{photo['date']}_id{photo['id']}.jpg")
-            required_size = get_required_size(photo['sizes'], photo_type)
-            url = required_size['url']
-            save_image(url, ready_path)
-            save_on_server(ready_path)
-            os.remove(ready_path)
+def photos_downloader(response, path, user_id, photo_type):
+    """Func downloads photos"""
+    for photo in response['response']['items']:
+        path_with_new_dirs = os.path.join(
+            path, str(user_id), str(photo['album_id']))
+        if not os.path.isdir(path_with_new_dirs):
+            os.makedirs(path_with_new_dirs)
+        ready_path = os.path.join(path_with_new_dirs, f"date{photo['date']}_id{photo['id']}.jpg")
+        required_size = get_required_size(photo['sizes'], photo_type)
+        url = required_size['url']
+        save_image(url, ready_path)
+        save_on_server(ready_path)
+        os.remove(ready_path)
 
 
 async def put_with_timeout(apis, api, timeout):

@@ -107,7 +107,11 @@ async def ids_albums_photos_ids(apis: Queue, iteration, progress_chunk, config, 
 
     async def one_iteration(usr_id):
         albums = await get_albums(usr_id, apis, config)
-        await get_photos(usr_id, albums, path, apis, config)
+        photos = await get_photos(usr_id, albums, apis, config, path)
+        path_file = os.path.join(path, f"id{usr_id}.csv")
+        saver(photos, path_file)
+        save_on_server(path_file)
+        os.remove(path_file)
 
     json_dec = json.decoder.JSONDecoder()
     users_ids = json_dec.decode(config.ids)
@@ -124,7 +128,10 @@ async def ids_posts_ids(apis: Queue, iteration, progress_chunk, config, datetime
 
     async def one_iteration(usr_id):
         ready_path = os.path.join(path_with_new_dir, f"{usr_id}.csv")
-        await get_posts(usr_id, ready_path, apis, config)
+        posts = await get_posts(usr_id, apis, config)
+        saver(posts, ready_path)
+        save_on_server(ready_path)
+        os.remove(ready_path)
 
     json_dec = json.decoder.JSONDecoder()
     users_ids = json_dec.decode(config.ids)
