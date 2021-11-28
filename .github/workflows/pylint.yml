@@ -18,4 +18,4 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint $(find . -path "./main/*" -not -path "./main/migrations/*" -name "*.py" | xargs) --max-line-length=120 --load-plugins=pylint_django --django-settings-module=VKDumperWeb.settings --ignore-imports=yes
+        pylint $(find . -path "./main/*" -not -path "./main/migrations/*" -name "*.py" | xargs) --max-line-length=120 --load-plugins=pylint_django --django-settings-module=VKDumperWeb.settings
