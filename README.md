@@ -1,4 +1,10 @@
-# VKDumperWeb
+<div align="center">
+  <img src="logo.png"><br>
+</div>
+
+-----------------
+
+# VKDumperWeb: powerful parser for VK
 ||Badge|
 |------|:------:|
 |**Build Status**|[![GitHub Actions](https://github.com/IvanMoskalenko/VKDumperWeb/workflows/Build/badge.svg?branch=master)](https://github.com/IvanMoskalenko/VKDumperWeb/actions?query=branch%3Amaster) |
