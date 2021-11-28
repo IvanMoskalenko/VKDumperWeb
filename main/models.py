@@ -4,7 +4,7 @@ import json
 from asgiref.sync import sync_to_async
 from django.db import models
 
-from main.helpers import get_settings, current_date_and_time, get_api
+from main.helpers import get_apis, current_date_and_time, get_api
 from main.src.chains import ids_users_ids, ids_groups_members_ids, ids_friends_ids, ids_albums_photos_ids, ids_posts_ids
 
 
@@ -44,7 +44,7 @@ class Config(models.Model):
         await sync_to_async(self.save)()
         remaining_progress = 100 - self.progress
         progress_chunk = remaining_progress / len(self.chain)
-        apis = await get_settings(tokens)
+        apis = await get_apis(tokens)
         counter = len(self.original_chain) - len(self.chain)
         datetime = current_date_and_time()
         for link in self.chain:
