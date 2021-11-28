@@ -1,10 +1,9 @@
 """Module for getting all user's photos"""
 import math
-import os
 import queue
 
 from main.src.get_all.helpers \
-    import photos_downloader, saver, save_on_server, response_executor
+    import photos_downloader, response_executor
 
 
 async def get_album_photos_requests(apis, user_id, album_id, config):
@@ -38,11 +37,10 @@ async def get_album_photos_requests(apis, user_id, album_id, config):
     return api_requests
 
 
-async def get_all_photos_from_one_album(user_id, album_id, path, apis, config):
+async def get_all_photos_from_one_album(user_id, album_id, apis, config, path=""):
     """Func gets all photos from one album"""
     photos_list = []
     api_requests = await get_album_photos_requests(apis, user_id, album_id, config)
-    is_download = (config.remaining_chain[0] == '5')
     while not api_requests.empty():
         api_request = api_requests.get()
         response = await response_executor(api_request, apis, config)
@@ -52,19 +50,17 @@ async def get_all_photos_from_one_album(user_id, album_id, path, apis, config):
                 item['owner_id'] = user_id
                 item.pop('access_key', None)
                 item.pop('user_id', None)
-        photos_downloader(is_download, response, path, user_id, config.photo_type)
+        if config.remaining_chain[0] == '5':
+            photos_downloader(response, path, user_id, config.photo_type)
         photos_list.extend(response['response']['items'])
     return photos_list
 
 
-async def get_photos(user_id, albums_ids, path, apis, config):
+async def get_photos(user_id, albums_ids, apis, config, path=""):
     """Func gets all user's photos"""
-    path_file = os.path.join(path, f"id{user_id}.csv")
     photos_list = []
 
     for album in albums_ids:
-        album_photos_list = await get_all_photos_from_one_album(user_id, album, path, apis, config)
+        album_photos_list = await get_all_photos_from_one_album(user_id, album, apis, config, path)
         photos_list.extend(album_photos_list)
-    saver(photos_list, path_file)
-    save_on_server(path_file)
-    os.remove(path_file)
+    return photos_list

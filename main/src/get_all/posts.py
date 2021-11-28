@@ -1,9 +1,8 @@
 """Module for getting all users' posts"""
 import math
-import os
 import queue
 
-from main.src.get_all.helpers import saver, save_on_server, response_executor
+from main.src.get_all.helpers import response_executor
 
 
 async def get_posts_request(apis, user_id, config):
@@ -23,7 +22,7 @@ async def get_posts_request(apis, user_id, config):
     return api_requests
 
 
-async def get_posts(user_id, path, apis, config):
+async def get_posts(user_id, apis, config):
     """Func gets all user's post"""
     posts_list = []
     api_requests = await get_posts_request(apis, user_id, config)
@@ -31,6 +30,4 @@ async def get_posts(user_id, path, apis, config):
         api_request = api_requests.get()
         response = await response_executor(api_request, apis, config)
         posts_list.extend(response['response']['items'])
-    saver(posts_list, path)
-    save_on_server(path)
-    os.remove(path)
+    return posts_list

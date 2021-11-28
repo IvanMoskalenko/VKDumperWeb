@@ -33,7 +33,7 @@ def current_date_and_time():
     return now.strftime("%d-%m-%Y %H:%M:%S")
 
 
-async def get_settings(tokens):
+async def get_apis(tokens):
     """Func for getting APIs queue by tokens"""
     api_list = [get_api(token) for token in tokens]
     apis = Queue()

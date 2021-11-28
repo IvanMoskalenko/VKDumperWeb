@@ -5,11 +5,12 @@ import shutil
 from asyncio import Queue
 import numpy
 from asgiref.sync import sync_to_async
+
+from main.src.get_all.groups import get_groups
+from main.src.get_all.albums import get_albums
 from main.src.get_all.helpers import saver, save_on_server
 from main.src.helpers import limited_as_completed
-from main.src.get_all.albums import get_albums
 from main.src.get_all.friends import get_friends
-from main.src.get_all.groups import get_groups
 from main.src.get_all.members import get_members
 from main.src.get_all.photos import get_photos
 from main.src.get_all.posts import get_posts
@@ -107,7 +108,11 @@ async def ids_albums_photos_ids(apis: Queue, iteration, progress_chunk, config, 
 
     async def one_iteration(usr_id):
         albums = await get_albums(usr_id, apis, config)
-        await get_photos(usr_id, albums, path, apis, config)
+        photos = await get_photos(usr_id, albums, apis, config, path)
+        path_file = os.path.join(path, f"id{usr_id}.csv")
+        saver(photos, path_file)
+        save_on_server(path_file)
+        os.remove(path_file)
 
     json_dec = json.decoder.JSONDecoder()
     users_ids = json_dec.decode(config.ids)
@@ -124,7 +129,10 @@ async def ids_posts_ids(apis: Queue, iteration, progress_chunk, config, datetime
 
     async def one_iteration(usr_id):
         ready_path = os.path.join(path_with_new_dir, f"{usr_id}.csv")
-        await get_posts(usr_id, ready_path, apis, config)
+        posts = await get_posts(usr_id, apis, config)
+        saver(posts, ready_path)
+        save_on_server(ready_path)
+        os.remove(ready_path)
 
     json_dec = json.decoder.JSONDecoder()
     users_ids = json_dec.decode(config.ids)
