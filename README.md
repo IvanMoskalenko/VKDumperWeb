@@ -23,3 +23,18 @@ The user can create different request chains. At the moment, the following links
 * IDs -> wall.get -> IDs
 
 It is also possible to set limits on downloaded data. All downloaded information is saved on Yandex.Cloud. Therefore, for the full operation of the application, you need to set credentials. Please, visit [this](https://cloud.yandex.ru/docs/storage/tools/boto) page for full information.
+
+## Repository structure
+```
+VKDumperWeb
+├── .github - GitHub Actions setup
+├── VKDumperWeb - Django setup
+├── templates - .html templates for web-app (view in MVC)
+├── main - main Django app
+│	├── src - inner parser files
+|	├── tests.py - simple unit tests
+|	├── models.py - Django models
+| ├── urls.py - URLs of app
+|	└── views.py - Django views (controller in MVC)
+└── requirements.txt - list of necessary Python packages
+```
