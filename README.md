@@ -21,4 +21,5 @@ The user can create different request chains. At the moment, the following links
 * IDs -> photos.get -> IDs
 * IDs -> photos.get (with download) -> IDs
 * IDs -> wall.get -> IDs
+
 It is also possible to set limits on downloaded data. All downloaded information is saved on Yandex.Cloud. Therefore, for the full operation of the application, you need to set credentials. Please, visit [this](https://cloud.yandex.ru/docs/storage/tools/boto) page for full information.
