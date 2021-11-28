@@ -31,10 +31,10 @@ VKDumperWeb
 ├── VKDumperWeb - Django setup
 ├── templates - .html templates for web-app (view in MVC)
 ├── main - main Django app
-│	├── src - inner parser files
-|	├── tests.py - simple unit tests
-|	├── models.py - Django models
-| ├── urls.py - URLs of app
-|	└── views.py - Django views (controller in MVC)
+│	  ├── src - inner parser files
+|	  ├── tests.py - simple unit tests
+|	  ├── models.py - Django models
+|   ├── urls.py - URLs of app
+|	  └── views.py - Django views (controller in MVC)
 └── requirements.txt - list of necessary Python packages
 ```
