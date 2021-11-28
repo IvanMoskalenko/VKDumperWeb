@@ -27,6 +27,8 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       env:
-        TEST: ${{ secrets.TEST }}
+        TOKEN1: ${{ secrets.TOKEN1 }}
+        TOKEN2: ${{ secrets.TOKEN2 }}
+        TOKEN3: ${{ secrets.TOKEN3 }}
       run: |
         python manage.py test
