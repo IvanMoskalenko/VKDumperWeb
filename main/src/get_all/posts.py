@@ -1,9 +1,8 @@
 """Module for getting all users' posts"""
 import math
-import os
 import queue
 
-from main.src.get_all.helpers import saver, save_on_server, response_executor
+from main.src.get_all.helpers import response_executor
 
 
 async def get_posts_request(apis, user_id, config):

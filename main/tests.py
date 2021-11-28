@@ -19,13 +19,16 @@ load_dotenv()
 
 class GetAllTests(TestCase):
     """Testing get_all funcs"""
-    config = Config.objects.create(limit_groups=100, hard_limit_groups=100,
-                                   limit_members=10000, hard_limit_members=100000,
-                                   remaining_chain='4', limit_photos=100, hard_limit_photos=100,
-                                   limit_posts=10000, hard_limit_posts=100000)
+    config = None
     tokens = [os.environ['TOKEN1'], os.environ['TOKEN2'], os.environ['TOKEN3']]
     testing_user = 64560019
     testing_group = 29229881
+
+    def setUp(self):
+        self.config = Config.objects.create(limit_groups=100, hard_limit_groups=100,
+                                            limit_members=10000, hard_limit_members=100000,
+                                            remaining_chain='4', limit_photos=100, hard_limit_photos=100,
+                                            limit_posts=10000, hard_limit_posts=100000)
 
     async def test_friends(self):
         """Testing get_all.friends"""
