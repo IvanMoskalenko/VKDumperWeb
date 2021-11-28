@@ -9,7 +9,6 @@ from main.src.get_all.helpers import saver, save_on_server
 from main.src.helpers import limited_as_completed
 from main.src.get_all.albums import get_albums
 from main.src.get_all.friends import get_friends
-from main.src.get_all.groups import get_groups
 from main.src.get_all.members import get_members
 from main.src.get_all.photos import get_photos
 from main.src.get_all.posts import get_posts
