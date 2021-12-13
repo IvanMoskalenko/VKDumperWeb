@@ -48,16 +48,17 @@ class Config(models.Model):
         counter = len(self.original_chain) - len(self.chain)
         datetime = current_date_and_time()
         for link in self.chain:
-            if link == "1":
-                ids = await ids_users_ids(counter, apis, progress_chunk, self, datetime)
-            elif link == "2":
-                ids = await ids_groups_members_ids(apis, progress_chunk, self)
-            elif link == "3":
-                ids = await ids_friends_ids(apis, progress_chunk, self)
-            elif link in ('4', '5'):
-                ids = await ids_albums_photos_ids(apis, counter, progress_chunk, self, datetime)
-            else:
-                ids = await ids_posts_ids(apis, counter, progress_chunk, self, datetime)
+            match link:
+                case "1":
+                    ids = await ids_users_ids(counter, apis, progress_chunk, self, datetime)
+                case "2":
+                    ids = await ids_groups_members_ids(apis, progress_chunk, self)
+                case "3":
+                    ids = await ids_friends_ids(apis, progress_chunk, self)
+                case "4" | "5":
+                    ids = await ids_albums_photos_ids(apis, counter, progress_chunk, self, datetime)
+                case _:
+                    ids = await ids_posts_ids(apis, counter, progress_chunk, self, datetime)
             counter += 1
             await sync_to_async(self.refresh_from_db)()
             self.remaining_chain = self.remaining_chain[1:]

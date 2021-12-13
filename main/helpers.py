@@ -58,16 +58,17 @@ def chain_interpreter(chain):
     """Func converts the encoded chain into its textual representation"""
     interpreted_chain = ''
     for link in chain:
-        if link == "1":
-            interpreted_chain += 'IDs -> users.get -> '
-        if link == "2":
-            interpreted_chain += 'IDs -> groups.get -> groups.getMembers -> '
-        if link == "3":
-            interpreted_chain += 'IDs -> friends.get -> '
-        if link == "4":
-            interpreted_chain += 'IDs -> photos.getAlbums -> photos.get (w/o download) -> '
-        if link == "5":
-            interpreted_chain += 'IDs -> photos.getAlbums -> photos.get (with download) -> '
-        if link == "6":
-            interpreted_chain += 'IDs -> wall.get -> '
+        match link:
+            case "1":
+                interpreted_chain += 'IDs -> users.get -> '
+            case "2":
+                interpreted_chain += 'IDs -> groups.get -> groups.getMembers -> '
+            case "3":
+                interpreted_chain += 'IDs -> friends.get -> '
+            case "4":
+                interpreted_chain += 'IDs -> photos.getAlbums -> photos.get (w/o download) -> '
+            case "5":
+                interpreted_chain += 'IDs -> photos.getAlbums -> photos.get (with download) -> '
+            case _:
+                interpreted_chain += 'IDs -> wall.get -> '
     return interpreted_chain
